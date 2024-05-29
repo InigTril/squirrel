@@ -84,10 +84,19 @@ public interface ImmutableState<T extends StateMachine<T, S, E, C>, S, E, C>  ex
     ImmutableState<T, S, E, C> enterDeep(StateContext<T, S, E, C> stateContext);
     
     /**
+     * Enters this state is recursive mode: The entry action is executed and the
+     * last activate state is entered if it is in recursive mode itself, 
+     * the initial state is entered otherwise.
+     * @param stateContext
+     * @return child state entered by recursive
+     */
+    ImmutableState<T, S, E, C> enterRecursive(StateContext<T, S, E, C> stateContext);
+    
+    /**
      * Enters this state is shallow mode: The entry action is executed and the
      * initial state is entered in shallow mode if there is one.
      * @param stateContext
-     * @return child state entered by shadow
+     * @return child state entered by shallow
      */
     ImmutableState<T, S, E, C> enterShallow(StateContext<T, S, E, C> stateContext);
     

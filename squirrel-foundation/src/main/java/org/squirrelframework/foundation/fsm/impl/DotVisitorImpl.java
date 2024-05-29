@@ -31,10 +31,8 @@ class DotVisitorImpl extends AbstractVisitor implements DotVisitor {
         String stateLabel = visitable.getStateId().toString();
         if (visitable.hasChildStates()) {
             writeLine("subgraph cluster_" + stateId + " {\nlabel=\"" + stateLabel + "\";");
-            if (visitable.getHistoryType() == HistoryType.DEEP) {
-                writeLine(stateId + "History" + " [label=\"\"];");
-            } else if (visitable.getHistoryType() == HistoryType.SHALLOW) {
-                writeLine(stateId + "History" + " [label=\"\"];");
+            if (visitable.getHistoryType() != HistoryType.NONE) {
+                writeLine(stateId + "History" + " [label=\""+visitable.getHistoryType()+"\"];");
             }
         } else {
             writeLine(stateId + " [label=\"" + stateLabel + "\"];");

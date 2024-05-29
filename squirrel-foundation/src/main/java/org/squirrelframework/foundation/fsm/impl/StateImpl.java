@@ -250,6 +250,9 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
         case SHALLOW:
             result = enterHistoryShallow(stateContext);
             break;
+        case RECURSIVE:
+            result = enterHistoryRecursive(stateContext);
+            break;
         case DEEP:
             result = enterHistoryDeep(stateContext);
             break;
@@ -264,6 +267,18 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
         this.entry(stateContext);
         final ImmutableState<T, S, E, C> lastActiveState = getLastActiveChildStateOf(this, stateContext.getStateMachineData().read());
         return lastActiveState == null ? this : lastActiveState.enterDeep(stateContext);
+    }
+    
+    @Override
+    public ImmutableState<T, S, E, C> enterRecursive(StateContext<T, S, E, C> stateContext) {
+        entry(stateContext);
+        if (this.getHistoryType() == HistoryType.RECURSIVE) {
+            final ImmutableState<T, S, E, C> lastActiveState = 
+                getLastActiveChildStateOf(this, stateContext.getStateMachineData().read());
+            return lastActiveState == null ? this : lastActiveState.enterRecursive(stateContext);
+        } else {
+            return childInitialState!=null ? childInitialState.enterShallow(stateContext) : this;
+        }
     }
     
     @Override
@@ -282,6 +297,18 @@ class StateImpl<T extends StateMachine<T, S, E, C>, S, E, C> implements MutableS
     private ImmutableState<T, S, E, C> enterHistoryShallow(StateContext<T, S, E, C> stateContext) {
         final ImmutableState<T, S, E, C> lastActiveState = getLastActiveChildStateOf(this, stateContext.getStateMachineData().read());
         return lastActiveState != null ? lastActiveState.enterShallow(stateContext) : this;
+    }
+    
+    /**
+     * Enters this instance with history type = recursive.
+     *
+     * @param stateContext
+     *            state context
+     * @return the entered state
+     */
+    private ImmutableState<T, S, E, C> enterHistoryRecursive(StateContext<T, S, E, C> stateContext) {
+        final ImmutableState<T, S, E, C> lastActiveState = getLastActiveChildStateOf(this, stateContext.getStateMachineData().read());
+        return lastActiveState != null ? lastActiveState.enterRecursive(stateContext) : this;
     }
     
     /**

@@ -168,6 +168,8 @@ public class StateMachineImporterImpl<T extends StateMachine<T, S, E, C>, S, E, 
                 getCurrentState().setHistoryType(HistoryType.DEEP);
             } else if(historyType.equals("shallow")) {
                 getCurrentState().setHistoryType(HistoryType.SHALLOW);
+            } else if(historyType.equals("recursive")) {
+                getCurrentState().setHistoryType(HistoryType.RECURSIVE);
             }
         } else if(qName.equals("onentry")) {
             isEntryAction = Boolean.TRUE;

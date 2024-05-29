@@ -501,7 +501,10 @@ To define the context event, user has two way, annotation or builder API.
 
 *   **Using History States to Save and Restore the Current State**
 
-    The history pseudo-state allows a state machine to remember its state configuration. A transition taking the history state as its target will return the state machine to this recorded configuration. If the 'type' of a history is "shallow", the state machine processor must record the direct  active children of its parent before taking any transition that exits the parent. If the 'type' of a history is "deep", the state machine processor must record all the active  descendants of the parent before taking any transition that exits the parent.
+    The history pseudo-state allows a state machine to remember its state configuration. A transition taking the history state as its target will return the state machine to this recorded configuration. Different types of history are available:
+    - "shallow": the history pseudo-state represents the last active child of this composite state.
+    - "recursive": the history pseudo-state represents the last active child of the configuration of this composite state, including the nested composite states down to the last composite state with history type "recursive".
+    - "deep": the history pseudo-state represents the last active child of the whole configuration of this composite state, including the nested composite states down to the leaf state.
     Both API and annotation are supported to define history type of state. e.g.
 
     ```java
@@ -516,6 +519,7 @@ To define the context event, user has two way, annotation or builder API.
     ```
 
     **Note:** Before 0.3.7, user need to define "HistoryType.DEEP" for each level of historical state, which is not quite convenient.(Thanks to [Voskuijlen](https://github.com/Voskuijlen) to provide solution [Issue33](https://github.com/hekailiang/squirrel/issues/33)). Now user only define "HistoryType.DEEP" at the top level of historical state, and all its children state historical information will be remembered.
+    **Note:** "HistoryType.RECURSIVE" is not UML compliant and adds more control on the depth of the history.
 
 *   **Transition Types**
 
