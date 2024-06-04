@@ -50,7 +50,7 @@ public class AsyncExectionTest {
                 if (logger.length() > 0) {
                     logger.append('.');
                 }
-                logger.append("AToBOnFIRST");
+                logger.append("AToAOnFIRST");
             }
         });
         builder.transition().from("A").to("B").on("SECOND");
@@ -63,12 +63,15 @@ public class AsyncExectionTest {
         });
         fsm.start();
         try {
-            TimeUnit.MILLISECONDS.sleep(500);
+            // the first EVENT is delayed of 10ms, so we should wait at least 410ms, 
+            // and at most 500ms to ensure that exactly 5 FIRST events are triggered by A.
+            // Don't forget to keep enough time to process SECOND event before a 6th FIRST event is triggered.
+            TimeUnit.MILLISECONDS.sleep(450);
         } catch (InterruptedException e) {
         }
         fsm.fire("SECOND");
         fsm.terminate();
-        assertEquals("AToBOnFIRST.AToBOnFIRST.AToBOnFIRST.AToBOnFIRST.AToBOnFIRST", logger.toString());
+        assertEquals("AToAOnFIRST.AToAOnFIRST.AToAOnFIRST.AToAOnFIRST.AToAOnFIRST", logger.toString());
     }
     
     @Test

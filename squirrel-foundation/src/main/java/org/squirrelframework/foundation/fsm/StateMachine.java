@@ -38,6 +38,16 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
     void fireImmediate(E event, C context);
     
     /**
+     * Immediately processes the given event. If current state machine is busy, 
+     * this call blocks until it is available for event processing.
+     * @param event the event
+     * @param context external context
+     * @return true if the event has been accepted, 
+     * false otherwise (because no valid transition or because it was rejected by transition guards)
+     */
+    boolean processImmediate(E event, C context);
+    
+    /**
      * Test transition result under circumstance
      * @param event test event
      * @param context text context
@@ -56,6 +66,15 @@ public interface StateMachine<T extends StateMachine<T, S, E, C>, S, E, C> exten
      * @param event
      */
     void fireImmediate(E event);
+    
+    /**
+     * Immediately processes the given event. If current state machine is busy, 
+     * this call blocks until it is available for event processing.
+     * @param event the event
+     * @return true if the event has been accepted, 
+     * false otherwise (because no valid transition or because it was rejected by transition guards)
+     */
+    boolean processImmediate(E event);
     
     /**
      * Test event

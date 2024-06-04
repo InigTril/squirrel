@@ -6,6 +6,7 @@ import org.squirrelframework.foundation.fsm.annotation.Transit;
 import org.squirrelframework.foundation.fsm.annotation.Transitions;
 import org.squirrelframework.foundation.fsm.impl.AbstractStateMachine;
 import org.squirrelframework.foundation.fsm.StateMachineBuilderFactory;
+import org.squirrelframework.foundation.fsm.AnonymousCondition;
 import org.squirrelframework.foundation.fsm.HistoryType;
 import org.squirrelframework.foundation.fsm.StateMachineBuilder;
 
@@ -14,10 +15,18 @@ enum SampleStates {
 }
 
 enum SampleEvents {
-    E1, E2, E3, E4, E5, E6, E7, E8
+    E1, E2, E3, E4, E5, E6, E7, E8, E9
 }
 
 class SampleContext {
+    public boolean isOK;
+}
+
+class G1 extends AnonymousCondition<SampleContext> {
+    @Override
+    public boolean isSatisfied(SampleContext context) {
+        return context.isOK;
+    }
 }
 
 @States({
@@ -41,6 +50,7 @@ class SampleContext {
         @Transit(from = "L1_B", to = "L1_C", on = "E6"),
         @Transit(from = "L1_C", to = "L1_B", on = "E7"),
         @Transit(from = "L1_C", to = "L2_A", on = "E8"),
+        @Transit(from = "L1_A", to = "L1_C", on = "E9", when = G1.class),
 })
 public class RecursiveHistorySample extends
         AbstractStateMachine<RecursiveHistorySample, SampleStates, SampleEvents, SampleContext> {
@@ -56,9 +66,18 @@ public class RecursiveHistorySample extends
         final SampleContext sampleContext = new SampleContext();
 
         RecursiveHistorySample sampleController = RecursiveHistorySample.create();
+        sampleController.start();
+
+        sampleContext.isOK = false;
+        System.out.println("Should not be accepted (false): "
+                + sampleController.processImmediate(SampleEvents.E9, sampleContext));
+        sampleContext.isOK = true;
+        System.out.println(
+                "Should be accepted (true): " + sampleController.processImmediate(SampleEvents.E9, sampleContext));
+        System.out.println("Current state should be L1_C : " + sampleController.getCurrentState());
 
         // Demonstrate recursive history through two levels
-        sampleController.fire(SampleEvents.E1);
+        sampleController.fire(SampleEvents.E8);
         sampleController.fire(SampleEvents.E2);
         sampleController.fire(SampleEvents.E4);
         System.out.println("Current state should be L31_B: " + sampleController.getCurrentState());
@@ -71,7 +90,8 @@ public class RecursiveHistorySample extends
         sampleController.fire(SampleEvents.E6);
         sampleController.fire(SampleEvents.E8);
 
-        // Demonstrate recursive history through one level only, using initial state on second level
+        // Demonstrate recursive history through one level only, using initial state on
+        // second level
         sampleController.fire(SampleEvents.E3);
         sampleController.fire(SampleEvents.E5);
         System.out.println("Current state should be L32_B: " + sampleController.getCurrentState());

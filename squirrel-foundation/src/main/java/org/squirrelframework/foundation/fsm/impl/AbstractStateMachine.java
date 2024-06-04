@@ -294,6 +294,22 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     }
     
     @Override
+    public boolean processImmediate(E event, C context) {
+        boolean eventAccepted = false;
+        writeLock.lock();
+        setStatus(StateMachineStatus.BUSY);
+        eventAccepted = processEvent(event, context, data, executor, isDataIsolateEnabled);
+        ImmutableState<T, S, E, C> rawState = data.read().currentRawState();
+        if(isAutoTerminateEnabled && rawState.isRootState() && rawState.isFinalState()) {
+            terminate(context);
+        }
+        if(getStatus()==StateMachineStatus.BUSY)
+            setStatus(StateMachineStatus.IDLE);
+        writeLock.unlock();
+        return eventAccepted;
+    }
+    
+    @Override
     public void fire(E event) {
         fire(event, null);
     }
@@ -301,6 +317,11 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     @Override
     public void fireImmediate(E event) {
         fireImmediate(event, null);
+    }
+    
+    @Override
+    public boolean processImmediate(E event) {
+        return processImmediate(event, null);
     }
     
     /**
